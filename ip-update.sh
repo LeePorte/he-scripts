@@ -35,7 +35,7 @@ fi
 if [ ! -f "$IPFILE" ]
     then
   touch "$IPFILE"
-  echo "0.0.0.0" > "$IPFILE"
+  echo "$IP" > "$IPFILE"
 fi
 
 PREVIP=`cat $IPFILE`
@@ -46,8 +46,6 @@ echo $PREVIP
 if [ "$IP" =  "$PREVIP" ]; then
     # code if found
     echo "$DATE IP is still $IP. Exiting" >> "$LOGFILE"
-    rm "$IPFILE" && touch "$IPFILE"
-    echo "$IP" > "$IPFILE"
     exit 0
 else
     echo "$DATE IP has changed to $IP" >> "$LOGFILE"
