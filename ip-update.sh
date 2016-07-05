@@ -31,20 +31,28 @@ if ! valid_ip $IP; then
     exit 1
 fi
 
-# Check if the IP has changed
+# Make sure there is somewhere to store the IP address
 if [ ! -f "$IPFILE" ]
     then
   touch "$IPFILE"
-else
-  echo "$IP" > "$IPFILE"
+  echo "0.0.0.0" > "$IPFILE"
 fi
 
-if grep -Fxq "$IP" "$IPFILE"; then
+PREVIP=`cat $IPFILE`
+
+echo $PREVIP
+
+# Check if the IP has changed
+if [ "$IP" =  "$PREVIP" ]; then
     # code if found
     echo "$DATE IP is still $IP. Exiting" >> "$LOGFILE"
+    rm "$IPFILE" && touch "$IPFILE"
+    echo "$IP" > "$IPFILE"
     exit 0
 else
     echo "$DATE IP has changed to $IP" >> "$LOGFILE"
+    rm "$IPFILE" && touch "$IPFILE" 
+    echo "$IP" > "$IPFILE" 
 
 
 # update HE
