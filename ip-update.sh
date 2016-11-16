@@ -2,7 +2,7 @@
 
 HOSTNAME=<domain to be updated>
 PASSWORD=<generated from HE control panel>
-IPPROVIDER=https://wtfismyip.com/text
+IPPROVIDER=https://api.ipify.org
 IP=`curl -sS $IPPROVIDER`
 
 function valid_ip()
@@ -31,33 +31,22 @@ if ! valid_ip $IP; then
     exit 1
 fi
 
-# Make sure there is somewhere to store the IP address
+# Check if the IP file exists
 if [ ! -f "$IPFILE" ]
     then
   touch "$IPFILE"
-  echo "$IP" > "$IPFILE"
 fi
 
-PREVIP=`cat $IPFILE`
-
-echo $PREVIP
-
-# Check if the IP has changed
-if [ "$IP" =  "$PREVIP" ]; then
-    # code if found
+if grep -Fx "$IP" "$IPFILE"; then
     echo "$DATE IP is still $IP. Exiting" >> "$LOGFILE"
     exit 0
 else
     echo "$DATE IP has changed to $IP" >> "$LOGFILE"
-    rm "$IPFILE" && touch "$IPFILE" 
-    echo "$IP" > "$IPFILE" 
-
-
-# update HE
-wget --no-check-certificate -qO- "https://dyn.dns.he.net/nic/update?hostname=$HOSTNAME&password=$PASSWORD&myip=$IP"
-
-echo "$DATE updated IP address" >> "$LOGFILE"
+    echo "$IP" > "$IPFILE"
+    wget --no-check-certificate -qO- "https://dyn.dns.he.net/nic/update?hostname=$HOSTNAME&password=$PASSWORD&myip=$IP"
+    echo "$DATE updated IP address to $IP" >> "$LOGFILE"
 
 fi
 
 exit 0
+
